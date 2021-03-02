@@ -28,6 +28,14 @@ class ChargePoint(cp):
             interval=10,
             status=RegistrationStatus.accepted
         )
+    @on(Action.Authorize)
+    def on_authorize(self, id_tag: str, **kwargs):
+        return call_result.AuthorizePayload(
+            id_tag_info = {
+            'status':RegistrationStatus.accepted
+            }
+        )
+
 
 
 async def on_connect(websocket, path):

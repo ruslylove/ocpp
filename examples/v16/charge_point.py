@@ -30,6 +30,16 @@ class ChargePoint(cp):
 
         if response.status == RegistrationStatus.accepted:
             print("Connected to central system.")
+            
+    async def send_authorize(self):
+        request = call.AuthorizePayload(
+            id_tag = "1234"
+        )
+
+        response = await self.call(request)
+
+        if response.id_tag_info['status'] == RegistrationStatus.accepted:
+            print("It is authorized.")
 
 
 async def main():
@@ -40,7 +50,7 @@ async def main():
 
         cp = ChargePoint('CP_1', ws)
 
-        await asyncio.gather(cp.start(), cp.send_boot_notification())
+        await asyncio.gather(cp.start(), cp.send_boot_notification(),cp.send_authorize())
 
 
 if __name__ == '__main__':
