@@ -22,8 +22,8 @@ logging.basicConfig(level=logging.INFO)
 class ChargePoint(cp):
     async def send_boot_notification(self):
         request = call.BootNotificationPayload(
-            charge_point_model="Optimus",
-            charge_point_vendor="The Mobility House"
+            charge_point_model="EVity-01",
+            charge_point_vendor="IBS Corp."
         )
 
         response = await self.call(request)
@@ -33,7 +33,7 @@ class ChargePoint(cp):
             
     async def send_authorize(self):
         request = call.AuthorizePayload(
-            id_tag = "1234"
+            id_tag = "123456"
         )
 
         response = await self.call(request)
