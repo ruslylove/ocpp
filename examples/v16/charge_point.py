@@ -13,13 +13,17 @@ except ModuleNotFoundError:
 
 
 from ocpp.v16 import call
+from ocpp.routing import on
+from ocpp.v16 import call_result
 from ocpp.v16 import ChargePoint as cp
-from ocpp.v16.enums import RegistrationStatus
+from ocpp.v16.enums import Action, RegistrationStatus, AuthorizationStatus
+from ocpp.v16.enums import ReservationStatus
 
 logging.basicConfig(level=logging.INFO)
 
 
 class ChargePoint(cp):
+    # BOOT NOTIFICATION
     async def send_boot_notification(self):
         request = call.BootNotificationPayload(
             charge_point_model="EVity-01",
@@ -30,7 +34,8 @@ class ChargePoint(cp):
 
         if response.status == RegistrationStatus.accepted:
             print("Connected to central system.")
-            
+
+    # AUTHORIZE
     async def send_authorize(self):
         request = call.AuthorizePayload(
             id_tag = "123456"
@@ -38,8 +43,20 @@ class ChargePoint(cp):
 
         response = await self.call(request)
 
-        if response.id_tag_info['status'] == RegistrationStatus.accepted:
+        if response.id_tag_info['status'] == AuthorizationStatus.accepted:
             print("It is authorized.")
+
+    @on(Action.ReserveNow)
+    def on_reserve_now(self, 
+        connector_id: int,
+        expiry_date: str,
+        parent_id_tag: str,
+        id_tag: str,
+        reservation_id: int, 
+        **kwargs):
+        return call_result.ReserveNowPayload(
+            status = ReservationStatus.accepted 
+        )
 
 
 async def main():

@@ -12,9 +12,10 @@ except ModuleNotFoundError:
     import sys
     sys.exit(1)
 
+from ocpp.v16 import call
 from ocpp.routing import on
 from ocpp.v16 import ChargePoint as cp
-from ocpp.v16.enums import Action, RegistrationStatus
+from ocpp.v16.enums import Action, RegistrationStatus,AuthorizationStatus
 from ocpp.v16 import call_result
 
 logging.basicConfig(level=logging.INFO)
@@ -32,9 +33,25 @@ class ChargePoint(cp):
     def on_authorize(self, id_tag: str, **kwargs):
         return call_result.AuthorizePayload(
             id_tag_info = {
-            'status':RegistrationStatus.accepted
+            'status':AuthorizationStatus.accepted
             }
         )
+
+    # RESERVE NOW
+    async def send_reserve_now(self):
+        now = datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S') + "Z"
+        request = call.ReserveNowPayload(
+            connector_id= 1,
+            expiry_date = now,
+            parent_id_tag = "123456",
+            id_tag= "123456",
+            reservation_id= 1
+        )
+
+        response = await self.call(request)
+
+        if response.status == RegistrationStatus.accepted:
+            print("Reserved OK.")
 
 
 
